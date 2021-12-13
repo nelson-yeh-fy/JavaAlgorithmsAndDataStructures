@@ -33,7 +33,8 @@ class BubbleSortTest {
     @Test
     public void testBubbleSorts() {
         // Bubble sort
-        Integer[] result = BubbleSort.sort(unsorted.clone());
+        BubbleSort bubbleSort = new BubbleSort();
+        Integer[] result = bubbleSort.sort(unsorted.clone());
         assertArrayEquals(result, sorted);
     }
 }

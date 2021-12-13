@@ -1,32 +1,32 @@
 package com.javaalgorithms.sorts;
 
+import static com.javaalgorithms.sorts.SortingUtils.*;
+
 /**
  * @author nelson-yeh-fy (https://https://github.com/nelson-yeh-fy)
  */
-public class BubbleSort<T extends Comparable<T>> {
-
-    private BubbleSort() { }
-    //@param unsorted array
-    //@return sorted array
-    public static <T extends Comparable<T>> T[] sort(T[] unsorted) {
-        boolean swapped = true;
-        int length = unsorted.length;
-        while (swapped) {
-            swapped = false;
-            for (int i = 1; i < length; i++) {
-                if (unsorted[i].compareTo(unsorted[i - 1]) < 0) {
-                    swap(i, i - 1, unsorted);
+public class BubbleSort implements SortingAlgorithm {
+    /**
+     * Implements generic bubble sort algorithm.
+     *
+     * @param array the array to be sorted.
+     * @param <T> the type of elements in the array.
+     * @return the sorted array.
+     */
+    //@Override
+    public <T extends Comparable<T>> T[] sort(T[] array) {
+        for (int i = 1, size = array.length; i < size; ++i) {
+            boolean swapped = false;
+            for (int j = 0; j < size - i; ++j) {
+                if (array[j].compareTo(array[j + 1]) > 0) {
+                    swap(array, j, j + 1);
                     swapped = true;
                 }
             }
-            length--;
+            if (!swapped) {
+                break;
+            }
         }
-        return unsorted;
-    }
-    //swapping the value
-    private static <T extends Comparable<T>> void swap(int index1, int index2, T[] unsorted) {
-        T value = unsorted[index1];
-        unsorted[index1] = unsorted[index2];
-        unsorted[index2] = value;
+        return array;
     }
 }
