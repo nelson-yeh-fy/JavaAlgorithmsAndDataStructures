@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/AlgorithmsAndDataStructures/AlgorithmsAndDataStructures.iml" filepath="$PROJECT_DIR$/AlgorithmsAndDataStructures/AlgorithmsAndDataStructures.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AlgorithmsAndDataStructures/AlgorithmsAndDataStructuresTests.iml" filepath="$PROJECT_DIR$/AlgorithmsAndDataStructures/AlgorithmsAndDataStructuresTests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/JavaAlgorithmsAndDataStructures.iml" filepath="$PROJECT_DIR$/.idea/JavaAlgorithmsAndDataStructures.iml" />
+    </modules>
+  </component>
+</project>
