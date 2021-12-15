@@ -4,31 +4,31 @@ package com.javaalgorithms.datastructures;
  * Generic TreeNode Class.
  *
  * @author nelson-yeh-fy (https://https://github.com/nelson-yeh-fy)
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
-public class TreeNode <T extends Comparable<T>> {
+public class TreeNode <T extends Comparable<T>, K extends Comparable<K>> {
     T key;
-    T val;
-    TreeNode<T> left;
-    TreeNode<T> right;
+    K val;
+    TreeNode<T, K> left;
+    TreeNode<T, K> right;
 
     /** Creates a TreeNode with the specified key and value.
      * @param key <T> the type of key in the node.
-     * @param val <T> the type of value in the node.
+     * @param val <K> the type of value in the node.
      */
-    TreeNode(T key,T val){
+    TreeNode(T key,K val){
         this.key = key;
         this.val = val;
     }
 
     /** Creates a TreeNode with the specified key, value, left child, and right child.
      * @param key <T> the type of key in the node.
-     * @param val <T> the type of value in the node.
-     * @param l TreeNode<T> as a left child node.
-     * @param r TreeNode<T> as a right child node.
+     * @param val <K> the type of value in the node.
+     * @param l TreeNode<T, K> as a left child node.
+     * @param r TreeNode<T, K> as a right child node.
      */
-    TreeNode(T key,T val, TreeNode<T> l, TreeNode<T> r){
+    TreeNode(T key, K val, TreeNode<T, K> l, TreeNode<T, K> r){
         this.key = key;
         this.val = val;
         this.left = l;
@@ -43,9 +43,9 @@ public class TreeNode <T extends Comparable<T>> {
     }
 
     /** Retrieves value from a TreeNode.
-     * @return <T> the value of "val".
+     * @return <K> the value of "val".
      */
-    public T getValue() {
+    public K getValue() {
         return this.val;
     }
 }
