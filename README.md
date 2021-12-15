@@ -1,18 +1,21 @@
-# Algorithms & Data Structures Using Java
 Implementing some of the most well known algorithms and data structures using Java
 
-# Currently Implementing
-Sorting Algorithms
-Insertion Sort
-Merge Sort
-Heap Sort
-Quicksort
-Counting Sort
-Data Structures
-Binary Search Tree
-Build information
+### Currently Implemented
 
+#### Sorting Algorithms
+* Bubble Sort
 
-# Data Structures
+#### Data Structures
+* Hash Map
+* Binary Search Tree
 
-# Algorithms
+#### Currently Implementing
+* Insertion Sort
+* Merge Sort
+* Heap Sort
+* Quicksort
+* Counting Sort
+
+#### Build Information
+* Java JDK 1.8
+* JUnit-Jupiter 5.4.2
