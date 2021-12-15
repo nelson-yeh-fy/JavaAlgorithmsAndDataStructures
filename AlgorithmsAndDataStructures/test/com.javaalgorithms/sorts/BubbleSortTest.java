@@ -1,8 +1,7 @@
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 import java.util.Random;
 import com.javaalgorithms.sorts.BubbleSort;
 import static org.junit.jupiter.api.Assertions.*;
-//import static org.junit.Assert.assertTrue;
 
 class BubbleSortTest {
 

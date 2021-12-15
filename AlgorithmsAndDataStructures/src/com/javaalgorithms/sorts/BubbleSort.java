@@ -4,6 +4,8 @@ import static com.javaalgorithms.sorts.SortingUtils.*;
 
 /**
  * @author nelson-yeh-fy (https://https://github.com/nelson-yeh-fy)
+ * @version 1.0
+ * @since 1.0
  */
 public class BubbleSort implements SortingAlgorithm {
     /**
