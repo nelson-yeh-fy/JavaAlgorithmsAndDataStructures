@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TreeNodeTest {
-
     @Test
     void getKey() {
         final int key = 0;

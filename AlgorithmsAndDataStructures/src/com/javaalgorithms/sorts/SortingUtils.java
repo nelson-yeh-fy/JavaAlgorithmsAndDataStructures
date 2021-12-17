@@ -15,7 +15,8 @@ public class SortingUtils {
             array[idy] = temp;
             return true;
         }catch(ArrayIndexOutOfBoundsException e){
-            return false;
+            System.out.println("Array Index out of bounds" + e.getMessage());
+            throw e;
         }
     }
 }

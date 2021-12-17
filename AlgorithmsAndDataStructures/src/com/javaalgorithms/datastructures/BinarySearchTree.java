@@ -86,17 +86,13 @@ public class BinarySearchTree <T extends Comparable<T>, K extends Comparable<K>>
     }
 
     /**
-     * Given a treenode in the BST, find its successor.
+     * Given a TreeNode in the BST, find its successor.
      * @param ptr given a TreeNode ptr in the BST.
      * @return the successor of the given TreeNode.
      */
     private TreeNode<T, K> findSuccessor(TreeNode<T, K> ptr){
-        if(ptr == null) {
-            return null;
-        }
-
         TreeNode<T, K> curr = ptr.right;
-        while(curr != null && ptr.left != null)
+        while(curr != null && curr.left != null)
             curr = curr.left;
         return curr;
     }

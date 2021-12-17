@@ -4,6 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.javaalgorithms.sorts.SortingUtils.swap;
+
 class BubbleSortTest {
 
     @BeforeEach
@@ -33,5 +35,17 @@ class BubbleSortTest {
             assert strings[i].compareTo(strings[i + 1]) <= 0;
         }
         /* output: [a, b, c, d, e] */
+    }
+
+    @Test
+    void swapTest() {
+        try {
+            Integer[] integers = {4, 23, 6, 78, 1, 54, 231, 9, 12};
+            swap(integers, 0, 1);
+            swap(integers, 0, 1);
+            swap(integers, 0, 10);
+        }catch(ArrayIndexOutOfBoundsException e){
+            System.out.println("Array Index out of bounds" + e.getMessage());
+        }
     }
 }
