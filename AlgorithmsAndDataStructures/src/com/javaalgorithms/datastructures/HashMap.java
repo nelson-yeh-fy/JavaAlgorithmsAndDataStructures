@@ -1,26 +1,68 @@
 package com.javaalgorithms.datastructures;
 
-public class HashMap {
-// Approach 2: Array of BST trees (array index is the hash code of a key, so the same hash contains a BST)
-// https://leetcode.com/problems/design-hashmap/discuss/227081/Java-Solutions
-    BST[] trees = new BST[10000];
-    private BST findTree(int key){
-        int idx = Integer.hashCode(key) % 3;
-        if(trees[idx] == null)
-            trees[idx] = new BST();
-        return trees[idx];
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Generic HashMap Class by using array of BinarySearchTrees.
+ *
+ * @author nelson-yeh-fy (https://https://github.com/nelson-yeh-fy)
+ * @version 1.0
+ * @since 1.0
+ */
+/*
+ * Approach 2: Array of BST trees (array index is the hash code of a key, so the same hash contains a BST)
+ * https://leetcode.com/problems/design-hashmap/discuss/227081/Java-Solutions
+ */
+public class HashMap <T extends Comparable<T>, K extends Comparable<K>>{
+    int capacity;
+    List<BinarySearchTree<T, K>> trees;
+    public HashMap(int capacity) {
+        this.capacity = capacity;
+        trees = new ArrayList<>(capacity);
+        for(int i = 0 ; i < capacity ; i++)
+            trees.add(null);
     }
-    // value will always be non-negative.
-    public void put(int key, int value) {
-        (findTree(key)).insert(key, value);
+
+    /**
+     * Put a new key, value pair into our HashMap
+     * @param key <T> the type of key in the node.
+     * @param val <K> the type of value in the node.
+     */
+    public void put(T key, K val) {
+        BinarySearchTree<T, K> tree = findTree(key);
+        tree.insert(key, val);
     }
-    // Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key
-    public int get(int key) {
-        return (findTree(key)).get(key);
+
+    /**
+     * Get the value of the HashMap
+     * @param key <T> the type of key in the node.
+     * @return null if no such key exists in the HashMap
+     */
+    public K get(T key) {
+        BinarySearchTree<T, K> tree = findTree(key);
+        return tree.getNodeValue(key);
     }
-    // Removes the mapping of the specified value key if this map contains a mapping for the key
-    public void remove(int key) {
-        (findTree(key)).remove(key);
+
+    /**
+     * Remove a key value pair
+     * @param key <T> the type of key in the node.
+     */
+    public void remove(T key) {
+        BinarySearchTree<T, K> tree = findTree(key);
+        tree.remove(key);
+    }
+
+    /**
+     * find a tree in the ArrayList<BinarySearchTree<T,K>>
+     * @param key <T> the type of key in the node.
+     * @return BinarySearchTree <T, K>
+     */
+    private BinarySearchTree<T, K> findTree(T key){
+        int hash = key.hashCode() % capacity;
+        if(trees.get(hash) == null)
+            trees.set(hash, new BinarySearchTree<>());
+        return trees.get(hash);
     }
 
     /**
@@ -28,7 +70,7 @@ public class HashMap {
      */
     public static void main(String[] args) {
         // write your code here
-        HashMap obj = new HashMap();
+        HashMap<Integer, Integer> obj = new HashMap<>(100);
         int key = 1, val = 2;
         obj.put(key,val);
         obj.put(4,4);
@@ -37,91 +79,6 @@ public class HashMap {
         obj.remove(key);
     }
 }
-
-class Node {
-    int key, val;
-    Node left;
-    Node right;
-    Node(int k, int v){
-        this.key = k; this.val = v;
-    }
-}
-
-class BST {
-    Node root = null;
-    public void insert(int key, int value){
-        this.root = insert(this.root, key, value);
-    }
-    public Node insert(Node ptr, int key, int value){
-        if(ptr == null)
-            return new Node(key, value);
-
-        if(key < ptr.key)
-            ptr.left = insert(ptr.left, key, value);
-        else if(key > ptr.key)
-            ptr.right = insert(ptr.right, key, value);
-        else
-            ptr.val = value;
-        return ptr;
-    }
-    private Node findNode(Node ptr, int key){
-        if(ptr == null)
-            return null;
-
-        if(key < ptr.key)
-            return findNode(ptr.left, key);
-        else if(key > ptr.key)
-            return findNode(ptr.right, key);
-        else
-            return ptr;
-    }
-    public int get(int key){
-        Node n = findNode(this.root, key);
-        if(n == null)
-            return -1;
-        return n.val;
-    }
-    private Node findSuccessor(Node ptr){
-        if(ptr == null)
-            return null;
-        Node curr = ptr.right;
-        while(curr != null && ptr.left != null)
-            curr = curr.left;
-        return curr;
-    }
-    public void remove(int key) {
-        this.root = remove(this.root, key);
-    }
-    public Node remove(Node ptr, int key){
-        if(ptr == null)
-            return null;
-
-        // 1. Locate the target node
-        if(key < ptr.key)
-            ptr.left = remove(ptr.left, key);
-        if(key > ptr.key)
-            ptr.right = remove(ptr.right, key);
-        // 2. Delete the node by checking three situations
-        if(key == ptr.key){
-            // 2.1 no child, delete it directly
-            // 2.2 only one subtree, replace the ptr with its subtree
-            if(ptr.left == null)
-                return ptr.right;
-            if(ptr.right == null)
-                return ptr.left;
-            // 2.3 two subtrees, find the inorder successor
-            Node inorderSuccessor = findSuccessor(ptr);
-            if(inorderSuccessor != null){
-                ptr.key = inorderSuccessor.key;
-                ptr.val = inorderSuccessor.val;
-                ptr.right = remove(ptr.right, inorderSuccessor.key);
-            }
-            return ptr;
-        }
-        return ptr;
-    }
-}
-
 
 /*
  * Approach 1: use a big array with two pre-requisites: fixed size, non-negative key.
