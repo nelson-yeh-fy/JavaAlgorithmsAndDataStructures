@@ -2,13 +2,13 @@ package com.javaalgorithms.sorts;
 
 import org.junit.jupiter.api.Test;
 
-class InsertionSortTest {
+class MergeSortTest {
 
     @Test
     void sort() {
         Integer[] integers = {4, 23, 6, 78, 1, 54, 231, 9, 12};
-        InsertionSort insertionSort = new InsertionSort();
-        insertionSort.sort(integers);
+        MergeSort mergeSort = new MergeSort();
+        mergeSort.sort(integers);
 
         for (int i = 0; i < integers.length - 1; ++i) {
             assert integers[i] <= integers[i + 1];
@@ -17,7 +17,7 @@ class InsertionSortTest {
 
 
         String[] strings = {"c", "a", "e", "b", "d"};
-        insertionSort.sort(strings);
+        mergeSort.sort(strings);
         for (int i = 0; i < strings.length - 1; i++) {
             assert strings[i].compareTo(strings[i + 1]) <= 0;
         }
