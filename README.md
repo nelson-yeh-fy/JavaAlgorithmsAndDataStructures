@@ -5,15 +5,15 @@ Implementing some of the most well known algorithms and data structures using Ja
 #### Sorting Algorithms
 * Bubble Sort
 * Insertion Sort
+* Merge Sort
+* Quicksort
 
 #### Data Structures
 * Hash Map
 * Binary Search Tree
 
 #### Currently Implementing
-* Merge Sort
 * Heap Sort
-* Quicksort
 * Counting Sort
 * Token Bucket for rate limiting
 * Leaking Bucket for rate limiting
