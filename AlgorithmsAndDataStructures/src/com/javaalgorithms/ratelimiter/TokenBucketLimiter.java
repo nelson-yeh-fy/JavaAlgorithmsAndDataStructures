@@ -9,101 +9,68 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0
  * @since 1.0
  */
-public class TokenBucketLimiter implements RateLimiting {
-    static final int DEFAULT_MAX_TOKENS = 4;
-    static final int DEFAULT_TOKEN_REFILL_RATE = 1;
+public class TokenBucketLimiter extends RateLimiter implements RateLimiting {
+    static final long DEFAULT_MAX_TOKENS = 4;
+    static final long DEFAULT_TOKEN_REFILL_RATE = 1;
+
     private long MAX_TOKENS; // The max bucket capacity;
-    private long possibleTokens;
-    private long refillTokenPerUnit;
+    private long REFILL_TOKEN_PER_UNIT;
+    private long availableTokens;
     private long lastRequestTime;
 
-    /** Creates a TokenBucketLimiter with the default max tokens (bucket capability) and refill rate.
-     */
-    TokenBucketLimiter(){
-        this(DEFAULT_MAX_TOKENS, DEFAULT_TOKEN_REFILL_RATE);
-    }
-
-    /** Creates a TokenBucketLimiter with the default max tokens (bucket capability) and refill rate.
+    /** Creates a Token Bucket Limiter.
      *
-     * @param maxTokens the max token number of the bucket.
-     * @param refillTokenPerUnit the refill rate per limit unit.
+     * @param domain Rate Limiter domain name
+     * @param descriptorKey Rate Limiter descriptor key as the throttle categories, e.g.: IP, UserID, other properties
+     * @param descriptorValue Rate Limiter descriptor value, e.g.: 10.1.1.100, 001, other properties
+     * @param unit Limiter unit, described in the RateLimitingUnit enum
+     * @param maxLimitPerUnit the max limit it allows.
+     * @param fixedProcessRate the processing rate, it will be token refill rate for TokenBucketLimiter, and processRate for LeakyBucketLimiter
      */
-    TokenBucketLimiter(int maxTokens, int refillTokenPerUnit){
-        this.MAX_TOKENS = maxTokens;
-        this.refillTokenPerUnit = refillTokenPerUnit;
-        this.possibleTokens = 0;
-        this.lastRequestTime = System.currentTimeMillis();
+    TokenBucketLimiter(String domain, String descriptorKey, String descriptorValue, RateLimitingUnit unit,
+                       long maxLimitPerUnit, long fixedProcessRate){
+
+        super(domain, descriptorKey, descriptorValue, unit, maxLimitPerUnit, fixedProcessRate);
+
+        this.MAX_TOKENS = maxLimitPerUnit;
+        this.REFILL_TOKEN_PER_UNIT = fixedProcessRate;
+
+        /* The lastRequestTime is used for calculating available tokens,
+           set the initial value as 3 secs ago; this way, it fills tokens to the bucket at the beginning
+           similar to the approach if we start the limiter and then TimeUnit.SECONDS.sleep(3);
+         */
+        this.availableTokens = 0;
+        this.lastRequestTime = System.currentTimeMillis() - 3000;
     }
 
     /**
      * Main method make a request
      *
-     * @param throttleID - to support different type of throttle rules, either IP, User ID, or other properties
+     * @param throttleID - to support different type of throttle rules, either IP, User ID, or other properties.
+     *                     for the current version, use a global bucket for all the requests.
      * @param request - naive request content for demonstration
      * @return a sorted array
      */
-    @Override
     public synchronized Response makeRequest(long throttleID, String request) throws InterruptedException {
-        return null;
-    }
 
-    public synchronized void getToken(long throttleID, String request) throws InterruptedException {
-
-        possibleTokens += (System.currentTimeMillis() - lastRequestTime) / 1000;// * refillTokenPerUnit;
-        if(possibleTokens > this.MAX_TOKENS){
-            possibleTokens = this.MAX_TOKENS;
+        availableTokens += (System.currentTimeMillis() - lastRequestTime) / 1000 *
+                REFILL_TOKEN_PER_UNIT / RateLimitingUnit.getUnitInSecond(super.RATE_LIMIT_UNIT);
+        if(availableTokens > this.MAX_TOKENS){
+            availableTokens = this.MAX_TOKENS;
         }
 
-        if(possibleTokens == 0){
-            TimeUnit.SECONDS.sleep(1);
-            //return new Response(ResponseHeader.X_RATE_LIMITER_RETRY_AFTER, refillTokenPerUnit);
+        if(availableTokens == 0){
+            System.out.println("No token for " + Thread.currentThread().getName());
+            return new Response(ResponseHeader.X_RATE_LIMITER_RETRY_AFTER, REFILL_TOKEN_PER_UNIT);
         } else {
-            possibleTokens--;
-            //return new Response(ResponseHeader.X_RATE_LIMITER_REMAINING, possibleTokens);
-        }
-        lastRequestTime = System.currentTimeMillis();
-        System.out.println("Granting " + Thread.currentThread().getName() + " token at " + possibleTokens);
-    }
-
-    /**
-     * for a rate limiter to load a configuration
-     *
-     * @param config - String for demo purpose, may change it to an object which contains more detail configurations.
-     */
-    @Override
-    public void loadConfiguration(String config){
-        
-    }
-
-    /**
-     * Driver Code
-     */
-    public static void main(String[] args) throws InterruptedException {
-
-        // 1. Initiate our rate limiter
-        TokenBucketLimiter limiter = new TokenBucketLimiter();
-        limiter.loadConfiguration("Testing Configuration");
-        TimeUnit.SECONDS.sleep(5);
-
-        Set<Thread> allThreads = new HashSet<>();
-        // Create 15 threads to simulate the requests
-        for(int i = 0; i < 15 ; i++) {
-            Thread t = new Thread(() -> { // lambda to create anonymous Runnable class
-                try {
-                    limiter.getToken(1, "");
-                } catch (InterruptedException e) {
-                    System.out.println("Exception occurred: " + e.getMessage());
-                }
-            });
-            t.setName("Thread_" + (i + 1));
-            allThreads.add(t);
-        }
-        
-        for(Thread t : allThreads) {
-            t.start();
-        }
-        for(Thread t : allThreads) {
-            t.join();
+            availableTokens--;
+            lastRequestTime = System.currentTimeMillis();
+            System.out.println("Granting " + Thread.currentThread().getName() + " token at " + availableTokens);
+            /* we may use the rate limiter as the middleware to throttle requests,
+               only send requests to the internal load balancer / api servers when there is an available token.
+               (e.g.: Server.processHttpRequest(request);
+             */
+            return new Response(ResponseHeader.X_RATE_LIMITER_REMAINING, availableTokens);
         }
     }
 }

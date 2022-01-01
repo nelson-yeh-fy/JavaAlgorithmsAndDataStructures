@@ -4,8 +4,8 @@ public class Response {
     ResponseHeader responseHeader;
     long value;
 
-    Response(ResponseHeader rh, long value){
-        this.responseHeader = rh;
+    Response(ResponseHeader responseHeader, long value){
+        this.responseHeader = responseHeader;
         this.value = value;
     }
 }
