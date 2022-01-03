@@ -1,18 +1,11 @@
 package com.javaalgorithms.ratelimiter;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 /**
  * @author nelson-yeh-fy (https://https://github.com/nelson-yeh-fy)
  * @version 1.0
  * @since 1.0
  */
 public class TokenBucketLimiter extends RateLimiter implements RateLimiting {
-    static final long DEFAULT_MAX_TOKENS = 4;
-    static final long DEFAULT_TOKEN_REFILL_RATE = 1;
-
     private long MAX_TOKENS; // The max bucket capacity;
     private long REFILL_TOKEN_PER_UNIT;
     private long availableTokens;
@@ -53,8 +46,10 @@ public class TokenBucketLimiter extends RateLimiter implements RateLimiting {
      */
     public synchronized Response makeRequest(long throttleID, String request) throws InterruptedException {
 
-        availableTokens += (System.currentTimeMillis() - lastRequestTime) / 1000 *
-                REFILL_TOKEN_PER_UNIT / RateLimitingUnit.getUnitInSecond(super.RATE_LIMIT_UNIT);
+        availableTokens += (System.currentTimeMillis() - lastRequestTime) / 1000
+                / RateLimitingUnit.getUnitInSecond(super.RATE_LIMIT_UNIT)
+                * REFILL_TOKEN_PER_UNIT;
+
         if(availableTokens > this.MAX_TOKENS){
             availableTokens = this.MAX_TOKENS;
         }
@@ -65,7 +60,7 @@ public class TokenBucketLimiter extends RateLimiter implements RateLimiting {
         } else {
             availableTokens--;
             lastRequestTime = System.currentTimeMillis();
-            System.out.println("Granting " + Thread.currentThread().getName() + " token at " + availableTokens);
+            System.out.println("Granting " + Thread.currentThread().getName() + " token. (Available tokens now: " + availableTokens + ")");
             /* we may use the rate limiter as the middleware to throttle requests,
                only send requests to the internal load balancer / api servers when there is an available token.
                (e.g.: Server.processHttpRequest(request);

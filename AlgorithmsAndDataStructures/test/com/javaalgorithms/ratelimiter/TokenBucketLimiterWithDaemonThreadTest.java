@@ -6,12 +6,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-class TokenBucketLimiterTest {
+class TokenBucketLimiterWithDaemonThreadTest {
 
     void runTestWithMaxToken(RateLimitingUnit unit, long maxLimitPerUnit, long fixedProcessRate, int threadCount) throws InterruptedException {
 
         // 1. Initiate our rate limiter
-        TokenBucketLimiter limiter = new TokenBucketLimiter("Demo",
+        TokenBucketLimiterWithDaemonThread limiter = new TokenBucketLimiterWithDaemonThread("Demo",
                 "Global Bucket",
                 "Global",
                 unit,
@@ -44,8 +44,8 @@ class TokenBucketLimiterTest {
 
     @Test
     void simulateRequests() throws InterruptedException {
-        runTestWithMaxToken(RateLimitingUnit.SECOND, 5, 1, 8);
-        runTestWithMaxToken(RateLimitingUnit.SECOND, 5, 3, 8);
-        runTestWithMaxToken(RateLimitingUnit.MINUTE, 100, 60, 200);
+        runTestWithMaxToken(RateLimitingUnit.SECOND, 3, 1, 8);
+        //runTestWithMaxToken(RateLimitingUnit.SECOND, 5, 3, 10);
+        //runTestWithMaxToken(RateLimitingUnit.MINUTE, 100, 60, 200);
     }
 }
