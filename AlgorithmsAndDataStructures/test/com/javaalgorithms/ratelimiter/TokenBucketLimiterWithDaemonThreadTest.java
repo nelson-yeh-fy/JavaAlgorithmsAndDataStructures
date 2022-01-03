@@ -18,8 +18,22 @@ class TokenBucketLimiterWithDaemonThreadTest {
                 maxLimitPerUnit,
                 fixedProcessRate);
 
+        /* 2. After the rate limiter is fully constructed, use the threadFactory to create its daemon thread,
+         * which fills the token bucket in a given rate.
+         */
+        TokenBucketLimiterWithDaemonThreadFactory tf = new TokenBucketLimiterWithDaemonThreadFactory();
+        Thread limiterThread = tf.newThread( () -> {
+            try {
+                limiter.daemonThread();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        System.out.println("limiter Thread's name:" + limiterThread.getName() + ", Thread Count: " + tf.getCount());
+        limiterThread.start();
+
+        // 3. Create multiple threads to simulate requests
         Set<Thread> allThreads = new HashSet<>();
-        // Create multiple threads to simulate requests
         for(int i = 0; i < threadCount ; i++) {
             Thread t = new Thread(() -> { // lambda to create anonymous Runnable class
                 try {
@@ -44,8 +58,8 @@ class TokenBucketLimiterWithDaemonThreadTest {
 
     @Test
     void simulateRequests() throws InterruptedException {
-        runTestWithMaxToken(RateLimitingUnit.SECOND, 3, 1, 8);
-        //runTestWithMaxToken(RateLimitingUnit.SECOND, 5, 3, 10);
-        //runTestWithMaxToken(RateLimitingUnit.MINUTE, 100, 60, 200);
+        runTestWithMaxToken(RateLimitingUnit.SECOND, 3, 3, 8);
+        runTestWithMaxToken(RateLimitingUnit.SECOND, 5, 3, 10);
+        runTestWithMaxToken(RateLimitingUnit.MINUTE, 100, 60, 200);
     }
 }

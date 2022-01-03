@@ -18,8 +18,8 @@ class TokenBucketLimiterTest {
                 maxLimitPerUnit,
                 fixedProcessRate);
 
+        // 2. Create multiple threads to simulate requests
         Set<Thread> allThreads = new HashSet<>();
-        // Create multiple threads to simulate requests
         for(int i = 0; i < threadCount ; i++) {
             Thread t = new Thread(() -> { // lambda to create anonymous Runnable class
                 try {

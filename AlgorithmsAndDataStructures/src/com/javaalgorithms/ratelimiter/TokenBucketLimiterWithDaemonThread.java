@@ -30,7 +30,8 @@ public class TokenBucketLimiterWithDaemonThread extends RateLimiter implements R
         this.REFILL_TOKEN_PER_UNIT = fixedProcessRate;
         this.availableTokens = 0;
 
-        // Sample, should not start the child thread in the constructor, will do other adjustment to prevent this.
+        /* Sample for simulation, should not start the child thread in the constructor,
+        // this part is replaced by a ThreadFactory implementation (TokenBucketLimiterWithDaemonThreadTest.java)
         Thread t = new Thread( () -> {
             try {
                 this.daemonThread();
@@ -40,9 +41,14 @@ public class TokenBucketLimiterWithDaemonThread extends RateLimiter implements R
         });
         t.setDaemon(true);
         t.start();
+        */
     }
 
-    private void daemonThread() throws InterruptedException {
+    /** A daemon thread to fill the bucket continuously.
+     * Construct the TokenBucketLimiterWithDaemonThread object first, and then we start this thread to fill the bucket.
+     * @throws InterruptedException throws InterruptedException
+     */
+    public void daemonThread() throws InterruptedException {
         //noinspection InfiniteLoopStatement
         while(true){
             synchronized (this){
