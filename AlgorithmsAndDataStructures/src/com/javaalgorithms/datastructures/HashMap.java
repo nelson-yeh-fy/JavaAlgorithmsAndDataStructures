@@ -64,20 +64,6 @@ public class HashMap <T extends Comparable<T>, K extends Comparable<K>>{
             trees.set(hash, new BinarySearchTree<>());
         return trees.get(hash);
     }
-
-    /**
-     * Driver Code
-     */
-    public static void main(String[] args) {
-        // write your code here
-        HashMap<Integer, Integer> obj = new HashMap<>(100);
-        int key = 1, val = 2;
-        obj.put(key,val);
-        obj.put(4,4);
-        obj.put(7,7);
-        int param_2 = obj.get(key);
-        obj.remove(key);
-    }
 }
 
 /*

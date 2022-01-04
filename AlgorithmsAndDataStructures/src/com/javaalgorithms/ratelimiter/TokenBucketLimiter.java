@@ -17,15 +17,15 @@ public class TokenBucketLimiter extends RateLimiter implements RateLimiting {
      * @param descriptorKey Rate Limiter descriptor key as the throttle categories, e.g.: IP, UserID, other properties
      * @param descriptorValue Rate Limiter descriptor value, e.g.: 10.1.1.100, 001, other properties
      * @param unit Limiter unit, described in the RateLimitingUnit enum
-     * @param maxLimitPerUnit the max limit it allows.
+     * @param maxBucketCapacity the max size of a bucket (token bucket, leaky bucket) or a window (fixed window, sliding window).
      * @param fixedProcessRate the processing rate, it will be token refill rate for TokenBucketLimiter, and processRate for LeakyBucketLimiter
      */
     TokenBucketLimiter(String domain, String descriptorKey, String descriptorValue, RateLimitingUnit unit,
-                       long maxLimitPerUnit, long fixedProcessRate){
+                       long maxBucketCapacity, long fixedProcessRate){
 
-        super(domain, descriptorKey, descriptorValue, unit, maxLimitPerUnit, fixedProcessRate);
+        super(domain, descriptorKey, descriptorValue, unit, maxBucketCapacity, fixedProcessRate);
 
-        this.MAX_TOKENS = maxLimitPerUnit;
+        this.MAX_TOKENS = maxBucketCapacity;
         this.REFILL_TOKEN_PER_UNIT = fixedProcessRate;
 
         /* The lastRequestTime is used for calculating available tokens,
@@ -55,17 +55,17 @@ public class TokenBucketLimiter extends RateLimiter implements RateLimiting {
         }
 
         if(availableTokens == 0){
-            System.out.println("No token for " + Thread.currentThread().getName());
-            return new Response(ResponseHeader.X_RATE_LIMITER_RETRY_AFTER, REFILL_TOKEN_PER_UNIT);
+            //System.out.println("No token for " + Thread.currentThread().getName());
+            return new Response(ResponseHeader.X_RATE_LIMITER_RETRY_AFTER, RateLimitingUnit.getUnitInSecond(RATE_LIMIT_UNIT));
         } else {
             availableTokens--;
             lastRequestTime = System.currentTimeMillis();
-            System.out.println("Granting " + Thread.currentThread().getName() + " token. (Available tokens now: " + availableTokens + ")");
+            //System.out.println("Granting " + Thread.currentThread().getName() + " token. (Available tokens now: " + availableTokens + ")");
             /* we may use the rate limiter as the middleware to throttle requests,
                only send requests to the internal load balancer / api servers when there is an available token.
                (e.g.: Server.processHttpRequest(request);
              */
-            return new Response(ResponseHeader.X_RATE_LIMITER_REMAINING, availableTokens);
+            return new Response(ResponseHeader.X_RATE_LIMITER_REMAINING_AVAILABLE, availableTokens);
         }
     }
 }

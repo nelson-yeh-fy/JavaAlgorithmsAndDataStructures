@@ -12,11 +12,10 @@ Implementing some of the most well known algorithms and data structures using Ja
 * Hash Map
 * Binary Search Tree
 
-#### Currently Implementing
-* Heap Sort
-* Counting Sort
-* Token Bucket for rate limiting
-* Leaking Bucket for rate limiting
+#### Rate Limiter
+* Token Bucket filter
+* Leaking Bucket filter
+* Token Bucket filter with Daemon thread
 
 #### Build Information
 * Java JDK 1.8

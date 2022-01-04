@@ -24,6 +24,7 @@ class TokenBucketLimiterTest {
             Thread t = new Thread(() -> { // lambda to create anonymous Runnable class
                 try {
                     final Response res = limiter.makeRequest(1, "sample request");
+                    System.out.println(res.responseHeader.toString() + ", " + res.value);
                 } catch (InterruptedException e) {
                     System.out.println("Exception occurred: " + e.getMessage());
                 }

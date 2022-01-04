@@ -38,6 +38,7 @@ class TokenBucketLimiterWithDaemonThreadTest {
             Thread t = new Thread(() -> { // lambda to create anonymous Runnable class
                 try {
                     final Response res = limiter.makeRequest(1, "sample request");
+                    System.out.println(res.responseHeader.toString() + ", " + res.value);
                 } catch (InterruptedException e) {
                     System.out.println("Exception occurred: " + e.getMessage());
                 }
@@ -58,7 +59,7 @@ class TokenBucketLimiterWithDaemonThreadTest {
 
     @Test
     void simulateRequests() throws InterruptedException {
-        runTestWithMaxToken(RateLimitingUnit.SECOND, 3, 3, 8);
+        runTestWithMaxToken(RateLimitingUnit.SECOND, 3, 1, 8);
         runTestWithMaxToken(RateLimitingUnit.SECOND, 5, 3, 10);
         runTestWithMaxToken(RateLimitingUnit.MINUTE, 100, 60, 200);
     }

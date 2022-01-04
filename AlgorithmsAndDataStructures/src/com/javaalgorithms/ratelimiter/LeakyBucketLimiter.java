@@ -1,18 +1,19 @@
 package com.javaalgorithms.ratelimiter;
 
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * @author nelson-yeh-fy (https://https://github.com/nelson-yeh-fy)
  * @version 1.0
  * @since 1.0
  */
-public class TokenBucketLimiterWithDaemonThread extends RateLimiter implements RateLimiting {
-    private long MAX_TOKENS; // The max bucket capacity;
-    private long REFILL_TOKEN_PER_UNIT;
-    private long availableTokens;
+public class LeakyBucketLimiter extends RateLimiter implements RateLimiting {
 
-    /** Creates a Token Bucket Limiter.
+    private long taskCount; // how many tasks are queued, this is similar with TokenBucketLimiter's availableTokens, which represent tokens in an opposite way
+    private Queue<String> tasks;
+
+    /** Creates a Leaky Bucket Limiter.
      *
      * @param domain Rate Limiter domain name
      * @param descriptorKey Rate Limiter descriptor key as the throttle categories, e.g.: IP, UserID, other properties
@@ -21,40 +22,33 @@ public class TokenBucketLimiterWithDaemonThread extends RateLimiter implements R
      * @param maxBucketCapacity the max size of a bucket (token bucket, leaky bucket) or a window (fixed window, sliding window).
      * @param fixedProcessRate the processing rate, it will be token refill rate for TokenBucketLimiter, and processRate for LeakyBucketLimiter
      */
-    TokenBucketLimiterWithDaemonThread(String domain, String descriptorKey, String descriptorValue, RateLimitingUnit unit,
+    LeakyBucketLimiter(String domain, String descriptorKey, String descriptorValue, RateLimitingUnit unit,
                        long maxBucketCapacity, long fixedProcessRate){
 
         super(domain, descriptorKey, descriptorValue, unit, maxBucketCapacity, fixedProcessRate);
 
-        this.MAX_TOKENS = maxBucketCapacity;
-        this.REFILL_TOKEN_PER_UNIT = fixedProcessRate;
-        this.availableTokens = 0;
-
-        /* Sample for simulation, should not start the child thread in the constructor,
-        // this part is replaced by a ThreadFactory implementation (TokenBucketLimiterWithDaemonThreadTest.java)
-        Thread t = new Thread( () -> {
-            try {
-                this.daemonThread();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        t.setDaemon(true);
-        t.start();
-        */
+        this.taskCount = 0;
+        tasks = new LinkedList<>();
     }
 
-    /** A daemon thread to fill the bucket continuously.
-     * Construct the TokenBucketLimiterWithDaemonThread object first, and then we start this thread to fill the bucket.
+    /** A daemon thread to process the bucket continuously.
+     * In the leaky bucket filter, we see the max token number as a queue's capacity, and process the queue continuously.
+     * Construct the class object first, and then we start this thread to process the bucket.
      * @throws InterruptedException throws InterruptedException
      */
     public void daemonThread() throws InterruptedException {
         //noinspection InfiniteLoopStatement
         while(true){
             synchronized (this){
-                availableTokens += REFILL_TOKEN_PER_UNIT;
-                if(availableTokens >= MAX_TOKENS) {
-                    availableTokens = MAX_TOKENS;
+                // Process our bucket (queue) in a fixed rate, e.g.: process 3 requests per second
+                for(long i = FIXED_PROCESS_RATE; i >= 0 && taskCount > 0; i--){
+                    taskCount--;
+
+                    String task = tasks.poll();
+                    /* we could send the requests to the internal load balancer / api servers.
+                     * e.g.: Server.processHttpRequest(task);
+                     */
+                    System.out.println("Process one task (Remaining Tasks: " + tasks.size() + ")");
                 }
                 this.notify();
             }
@@ -73,17 +67,18 @@ public class TokenBucketLimiterWithDaemonThread extends RateLimiter implements R
     public Response makeRequest(long throttleID, String request) throws InterruptedException {
 
         synchronized(this) {
-            if (availableTokens == 0) {
-                //System.out.println("No token for " + Thread.currentThread().getName());
+            if (taskCount >= MAX_BUCKET_CAPACITY) {
+                //System.out.println("Not available for " + Thread.currentThread().getName() + " (Remaining Tasks: " + taskCount + ")");
                 return new Response(ResponseHeader.X_RATE_LIMITER_RETRY_AFTER, RateLimitingUnit.getUnitInSecond(RATE_LIMIT_UNIT));
             } else {
-                availableTokens--;
-                //System.out.println("Granting " + Thread.currentThread().getName() + " token. (Available tokens now: " + availableTokens + ")");
+                taskCount++;
+                tasks.offer(request);
+                //System.out.println("Accepting task from " + Thread.currentThread().getName() + " (Remaining Tasks: " + taskCount + ")");
                 /* we may use the rate limiter as the middleware to throttle requests,
                    only send requests to the internal load balancer / api servers when there is an available token.
                    (e.g.: Server.processHttpRequest(request);
                  */
-                return new Response(ResponseHeader.X_RATE_LIMITER_REMAINING_AVAILABLE, availableTokens);
+                return new Response(ResponseHeader.X_RATE_LIMITER_REMAINING_AVAILABLE, MAX_BUCKET_CAPACITY - taskCount);
             }
         }
     }
