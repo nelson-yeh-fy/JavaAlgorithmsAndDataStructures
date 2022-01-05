@@ -2,20 +2,19 @@ Implementing some of the most well known algorithms and data structures using Ja
 
 ### Currently Implemented
 
+#### Data Structures
+* Hash Map
+* Binary Search Tree
+
 #### Sorting Algorithms
 * Bubble Sort
 * Insertion Sort
 * Merge Sort
 * Quicksort
 
-#### Data Structures
-* Hash Map
-* Binary Search Tree
-
 #### Rate Limiter
 * Token Bucket filter
 * Leaking Bucket filter
-* Token Bucket filter with Daemon thread
 
 #### Build Information
 * Java JDK 1.8
