@@ -14,7 +14,7 @@ Implementing some of the most well known algorithms and data structures using Ja
 
 #### Rate Limiter
 * Token Bucket filter
-* Leaking Bucket filter
+* Leaky Bucket filter
 
 #### Build Information
 * Java JDK 1.8
